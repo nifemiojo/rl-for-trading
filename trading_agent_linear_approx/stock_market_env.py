@@ -17,7 +17,15 @@ class StockMarketEnv:
 
     def _get_state(self) -> np.ndarray[float]:
         """Return the last `window_size` closing prices as the state"""
-        return self.prices[self.current_step - self.window_size : self.current_step] # Represents recent prices
+        window_prices = self.prices[self.current_step - self.window_size : self.current_step]
+
+        price_changes_pct = (window_prices[1:] / window_prices[:-1]) - 1
+
+        sma = np.mean(window_prices)
+
+        volatility = np.std(window_prices)
+
+        return np.array([price_changes_pct[-1], sma, volatility])
     
     def step(self, action) -> tuple[np.ndarray, float, bool]:
         """Take an action and return next_state, reward, done"""

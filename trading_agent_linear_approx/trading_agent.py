@@ -1,4 +1,4 @@
-from q_learning_trading.stock_market_env import StockMarketEnv
+from stock_market_env import StockMarketEnv
 import random
 import numpy as np
 
