@@ -9,7 +9,7 @@ class StockMarketEnv:
     
     def reset(self) -> np.ndarray:
         """Reset the environment to the initial state"""
-        self.current_step = self.window_size
+        self.current_step = self.window_size - 1
         self.current_balance = self.initial_balance
         self.position = None
         self.entry_price = 0
@@ -17,7 +17,7 @@ class StockMarketEnv:
 
     def _get_state(self) -> np.ndarray[float]:
         """Return the last `window_size` closing prices as the state"""
-        window_prices = self.prices[self.current_step - self.window_size : self.current_step]
+        window_prices = self.prices[self.current_step - self.window_size + 1 : self.current_step + 1]
 
         price_changes_pct = (window_prices[1:] / window_prices[:-1]) - 1
 

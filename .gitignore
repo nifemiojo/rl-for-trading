@@ -1,5 +1,6 @@
 sandbox.ipynb
 .python-version
+.vscode/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
