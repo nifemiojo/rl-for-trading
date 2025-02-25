@@ -1,31 +1,47 @@
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 
 class StockMarketEnv:
     def __init__(self, prices: np.ndarray, window_size=5, initial_balance=1000):
+        self.scaler = StandardScaler()
         self.prices = prices
         self.window_size = window_size
         self.initial_balance = initial_balance
+        self.precomputed_states = []
+        self.precompute_scaling()
         self.reset()
     
     def reset(self) -> np.ndarray:
         """Reset the environment to the initial state"""
-        self.current_step = self.window_size - 1
+        self.current_step = self.window_size
         self.current_balance = self.initial_balance
         self.position = None
         self.entry_price = 0
         return self._get_state()
 
-    def _get_state(self) -> np.ndarray[float]:
+    def _compute_state(self, step) -> np.ndarray[float]:
         """Return the last `window_size` closing prices as the state"""
-        window_prices = self.prices[self.current_step - self.window_size + 1 : self.current_step + 1]
+        window_prices = self.prices[step - self.window_size : step]
 
         price_changes_pct = (window_prices[1:] / window_prices[:-1]) - 1
-
         sma = np.mean(window_prices)
-
         volatility = np.std(window_prices)
 
         return np.array([price_changes_pct[-1], sma, volatility])
+    
+    def precompute_scaling(self):
+        """Compute mean & std for each feature before training"""
+        states = []
+        for i in range(self.window_size, len(self.prices)):
+            states.append(self._compute_state(i))  # Collect all states
+
+        self.scaler.fit(states)  # Fit scaler on the dataset
+
+        self.precomputed_states = self.scaler.transform(states)
+
+    def _get_state(self):
+        """Retrieve current state and apply standardization"""
+        return self.precomputed_states[self.current_step - self.window_size]
     
     def step(self, action) -> tuple[np.ndarray, float, bool]:
         """Take an action and return next_state, reward, done"""
