@@ -56,13 +56,13 @@ class StockMarketEnv:
         
         elif action == 0: # Sell
             if self.position == "buy": # Only sell if holding a position
-                profit = current_price - self.entry_price
-                reward = profit * 100 # Scale reward for better learning
+                profit = (current_price - self.entry_price) / self.entry_price
+                reward = profit * 2 # Scale reward for better learning
                 self.current_balance += reward
                 self.position = None # Exit position
         
         else: # Hold
-            reward = -1 # Small penalty to discourage excessive holding
+            reward = -0.1 # Small penalty to discourage excessive holding
         
         self.current_step += 1
         done = self.current_step >= len(self.prices) - 1 # End of price data
